@@ -11,6 +11,6 @@
 int main(int argc, char *argv[])
 {
    // printf() displays the string inside quotation
-   printf("Hello, World! WOOT WE'RE READY! TEST");
+   printf("Hello, World! WOOT WE'RE READY! TEST test!");
    return 0;
 }
