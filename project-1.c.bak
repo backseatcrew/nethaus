@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
-    if(sockPuppet < 0){
+    if(socket < 0){
         printf("Could not open socket!\n");
     }
 
@@ -40,8 +40,7 @@ int main(int argc, char *argv[])
     serverIp.sin_family = AF_INET;
     memcpy((char *) server->h_addr_list[0], (struct sockaddr*)&serverIp.sin_addr.s_addr, server->h_length); //from bcopy to memcopy
 
-    serverIp.sin_port = htons(port);
-
+    serv
 
    return 0;
 }
