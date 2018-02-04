@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     }
 
     if(sockPuppet < 0){
-        printf("Could not open socket!\n");
+        printf("Could not open socket!!\n");
     }
 
     memset(&serverIp, 0, lengthServerIp);   //frombzero to memset
