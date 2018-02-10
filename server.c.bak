@@ -15,8 +15,8 @@ int main(int argc, char * argv[]) {
         exit(1);
     }
 
-    int sockPuppet = socket(AF_INET, SOCK_STREAM, 0);
-    if(sockPuppet < 0)
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if(sock < 0)
         printf("Could not open socket!!\n");
 
 
@@ -30,11 +30,12 @@ int main(int argc, char * argv[]) {
     serverIp.sin_addr.s_addr = INADDR_ANY;
     serverIp.sin_port = htons(port);
 
-    if(bind(sockPuppet, (struct sockaddr *) &serverIp, sizeof(serverIp)) < 0)
-        printf("Error attempting to bind");
+    if(bind(sock, (struct sockaddr *) &serverIp, sizeof(serverIp)) < 0)
+        printf("Error attempting to bind!!\n");
 
-    listen(sockPuppet, 5);
-    
+    sendto()
+
 
     return 0;
 }
+
