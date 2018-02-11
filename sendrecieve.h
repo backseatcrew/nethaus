@@ -14,7 +14,18 @@ struct payload {
 
 }*p;
 
-struct serialize {
+char serialize3() {
+    char b[sizeof(p->anyFileType) + sizeof(p->ip) + sizeof(p->port)];
+    int off = 0;
+    memcpy(b, &p->anyFileType, sizeof(p->anyFileType));
+    off = sizeof(p->anyFileType);
+    memcpy(b+off, &p->ip, sizeof(p->ip));
+    off += sizeof(p->port);
+    memcpy(b+off, &p->port, sizeof(p->port));
+    return *b;
+}
+
+/*struct serialize {
  void * serialized;
  int byteSize;
  size_t payloadSize;
@@ -49,12 +60,15 @@ void serializeFile(void * anyFileType, struct serialize * data) {
     memcpy(((char *)data->serialized) + data->byteSize, &anyFileType, sizeof(*anyFileType));
     data->byteSize += sizeof(*anyFileType);
 }
+*/
 
+/*
 void serialization(struct payload *pay, struct serialize * data) {
     serializePort(pay->port, data);
     serializeIP(pay->ip, data);
     serializeFile(pay->anyFileType, data);
 }
+
 
 /*algorithm notes:
 timer = round robin on client via loop checking..check in some duration

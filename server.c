@@ -9,7 +9,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
-int main(int argc, char * argv[]) {
+void main(int argc, char * argv[]) {
     if(argc < 2) {
         printf("No port provided. Exiting..\n");
         exit(1);
@@ -32,8 +32,10 @@ int main(int argc, char * argv[]) {
     if(bind(sock, (struct sockaddr *) &serverIp, sizeof(serverIp)) < 0)
         printf("Error attempting to bind!!\n");
 
+    char buffer [1024];
+     recvfrom(sock, buffer, 1024, 0, (struct sockaddr*) &clientIp, &lengthServerIp);
  int status ;
 
-    return 0;
+    printf("%s", buffer);
 }
 

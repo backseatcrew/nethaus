@@ -14,7 +14,6 @@ int main(int argc, char * argv[]) {
         printf("No port provided. Exiting..\n");
         exit(1);
     }
-
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
     if(sock < 0)
         printf("Could not open socket!!\n");
@@ -33,8 +32,9 @@ int main(int argc, char * argv[]) {
     if(bind(sock, (struct sockaddr *) &serverIp, sizeof(serverIp)) < 0)
         printf("Error attempting to bind!!\n");
 
-    sendto()
-
+    char buffer [1024];
+     recvfrom(sock, buffer, 1024, 0, (struct sockaddr*) &fromIp, &lengthServerIp);
+ int status ;
 
     return 0;
 }

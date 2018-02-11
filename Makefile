@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall
+CFLAGS=-g -Wall
 DEPS = sendrecieve.h
 OBJ= client.o server.o
 
@@ -7,8 +7,8 @@ OBJ= client.o server.o
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 make: $(OBJ)
-	$(CC) -o make client.o
-	$(CC) -o make server.o
+	$(CC) -o make client.o -o client
+	$(CC) -o make server.o -o server
 
 .PHONY : clean
 clean:	
