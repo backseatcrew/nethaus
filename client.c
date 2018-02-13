@@ -63,7 +63,8 @@ void main(int argc, char *argv[]) {
     }
     uint32_t srcIp = ipInfo->sin_addr.s_addr;//our IP
 
-
+//Second attempt at creating packet obj...
+/*
     struct header headerObj;
     headerObj.src = srcIp;
     inet_pton(AF_INET, argv[1], headerObj.dest);
@@ -76,21 +77,21 @@ void main(int argc, char *argv[]) {
         headerObj.data[i].data = malloc(8);
     }
 
+*/
 
+    p = malloc(sizeof(struct payload));
+    p->port = atoi(argv[2]);   //header port
+    inet_pton(AF_INET, argv[1], &p->ip);  //header ip
+    p->anyFileType = &argv[3];
+    uint32_t destIp = p->ip;
 
-  //  p = malloc(sizeof(struct payload));
-  //  p->port = atoi(argv[2]);   //header port
-   // inet_pton(AF_INET, argv[1], &p->ip);  //header ip
-  //  p->anyFileType = &argv[3];
-//    uint32_t destIp = &p->ip;
+   // unsigned char data [1];
+   // char * dataPointer = data;
 
- //   unsigned char data [1];
- //   char * dataPointer = data;
+    unsigned char data  = serialize();
+    //struct payload deserializedData = deserialize2(data);
 
-//    unsigned char data  = serialize();
-//    struct payload deserializedData = deserialize2(data);
-
-//    printf("type a string: \n\n");
+    printf("type a string: \n\n");
 //    fflush(stdout);
 //    printf("%d\n", deserializedData.port);
 
@@ -98,9 +99,9 @@ void main(int argc, char *argv[]) {
   // clock_t start = clock();
    //clock_t end = clock() - start;
 
-    //char buffer[1024];
-    //strcpy(buffer, "HELLO THIS IS A SIMPLE TEST!");
-    //sendto(sock, buffer, 1024, 0, (struct sockaddr*)&serverIp, sizeof(serverIp));
+    char buffer[1024];
+    strcpy(buffer, "HELLO THIS IS A SIMPLE TEST!");
+    sendto(sock, buffer, 1024, 0, (struct sockaddr*)&server.sin_addr.s_addr, sizeof(server.sin_addr.s_addr));
 }
 
 
