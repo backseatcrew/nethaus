@@ -1,20 +1,25 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <time.h>
-#define PACKET_SIZE 1
-
 struct payload {
-
-    int port;
-    struct in_addr ip;
     void * anyFileType;
+    uint32_t ip;
+    int port;
 
 }*p;
 
-char serialize3() {
+struct payload2 {
+    unsigned char length;
+    unsigned char type;
+    unsigned char *data;
+};
+
+struct header {
+    uint32_t src;
+    uint32_t dest;
+    int port;
+    struct payload2 data[8];
+} header;
+//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+char serialize() {
     char b[sizeof(p->anyFileType) + sizeof(p->ip) + sizeof(p->port)];
     int off = 0;
     memcpy(b, &p->anyFileType, sizeof(p->anyFileType));
@@ -25,50 +30,28 @@ char serialize3() {
     return *b;
 }
 
-/*struct serialize {
- void * serialized;
- int byteSize;
- size_t payloadSize;
-};
+char serialize2() {
+    char b[sizeof(uint32_t)*2 + sizeof(int) + sizeof (struct payload2)*8 ];
+    int off = 0;
 
-
-void makeRoom(struct serialize * data, size_t sizeOfData) {
-    if((data->byteSize + sizeOfData) > data->payloadSize) {
-        data->serialized = realloc(data->serialized, data->payloadSize * 2);
-        data->payloadSize *= 2;
-    }
-    else{
-        return;
-    }
+}
+////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+struct payload deserialize (char serializedData) {
+    struct payload data;
+    memcpy(&data.anyFileType, &serializedData, sizeof(data.anyFileType));
+    memcpy(&data.port, &serializedData + sizeof(&data.ip), sizeof(data.ip));
+    memcpy(&data.ip, &serializedData +sizeof(&data.ip)+ sizeof(&data.port), sizeof(data.port));
+    return data;
 }
 
-void serializePort(int port, struct serialize * data){
-    port = htons(port);
-    makeRoom(data, sizeof(int));
-    memcpy(((char *)data->serialized) + data->byteSize, &port, sizeof(int));
-    data->byteSize += sizeof(int);
+struct payload deserialize2 (char serializedData) {
+    struct payload data;
+    memcpy(&data.anyFileType, serializedData, sizeof data.anyFileType);
+    memcpy(&data.ip, serializedData + data.anyFileType, sizeof data.ip);
+    memcpy(&data.port, serializedData + sizeof data.anyFileType + sizeof data.ip, sizeof data.port);
+    return data;
 }
-
-void serializeIP(struct in_addr ip, struct serialize *data) {
-    makeRoom(data, sizeof(ip));
-    memcpy(((char *)data->serialized) + data->byteSize, &ip, sizeof(ip));
-    data->byteSize += sizeof(ip);
-}
-
-void serializeFile(void * anyFileType, struct serialize * data) {
-    makeRoom(data, sizeof(anyFileType));
-    memcpy(((char *)data->serialized) + data->byteSize, &anyFileType, sizeof(*anyFileType));
-    data->byteSize += sizeof(*anyFileType);
-}
-*/
-
-/*
-void serialization(struct payload *pay, struct serialize * data) {
-    serializePort(pay->port, data);
-    serializeIP(pay->ip, data);
-    serializeFile(pay->anyFileType, data);
-}
-
 
 /*algorithm notes:
 timer = round robin on client via loop checking..check in some duration
