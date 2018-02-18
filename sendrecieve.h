@@ -1,16 +1,27 @@
 struct payload {
-    void * anyFileType;
+    char * anyFileType;
     uint32_t ip;
     int port;
 
 }*p;
 
+struct ack {
+    int sequence;
+    int length;
+}ack;
+
+//establish handshake, send request with file (fullpath of server file location in request as string or array of chars), have a fixed length (1024 or something), if file path doesn't exist terminate (ack to close connection), read file in chunks of 1 kb, packatize it and send it, open file and seralize
+//payload should include packet size as well as src destination
 struct payload2 {
     unsigned char length;
     unsigned char type;
     unsigned char *data;
 };
-
+//ack sequence number, length of packet, (ack request) 32 bit number never cycle back
+//two structures one for the ack for different packet types ( data and ack)
+//2 meg jpg for test and open file and looks same we're good
+//chars and bites dont need hton or ntoh, only any type of int types!!
+//noth to deserialize
 struct header {
     uint32_t src;
     uint32_t dest;
@@ -44,7 +55,7 @@ struct payload deserialize (char serializedData) {
     memcpy(&data.ip, &serializedData +sizeof(&data.ip)+ sizeof(&data.port), sizeof(data.port));
     return data;
 }
-
+/*
 struct payload deserialize2 (char serializedData) {
     struct payload data;
     memcpy(&data.anyFileType, serializedData, sizeof data.anyFileType);
@@ -52,7 +63,7 @@ struct payload deserialize2 (char serializedData) {
     memcpy(&data.port, serializedData + sizeof data.anyFileType + sizeof data.ip, sizeof data.port);
     return data;
 }
-
+*/
 /*algorithm notes:
 timer = round robin on client via loop checking..check in some duration
 server send ack = 0 for fail and 1 for success

@@ -10,32 +10,29 @@
 #include <unistd.h>
 
 void main(int argc, char * argv[]) {
-    if(argc < 2) {
-        printf("No port provided. Exiting..\n");
-        exit(1);
+    if(argc < 2){
+        printf("Not enough arguments. System exiting..");
+        exit(0);
     }
+    //socket creation
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
-    if(sock < 0)
-        printf("Could not open socket!!\n");
+    if(sock < 0) printf("Could not open socket!!\n");
+    //host to server setup
+    struct sockaddr_in server, from;
+    memset(&server, 0, sizeof(server));
+    server.sin_family = AF_INET;
+    server.sin_port = htons(atoi(argv[1]));
+    server.sin_addr.s_addr = INADDR_ANY;
+    //binding
+    if(bind(sock,(struct sockaddr*) &server, sizeof(server)) < 0) printf("Error binding!!\n");
 
+    //recieving handshake
+    char buffer[1024];
+    socklen_t fromLength = sizeof(from);
 
-    struct sockaddr_in serverIp, clientIp;
-    socklen_t lengthServerIp = sizeof(serverIp);
-    memset(&serverIp, 0, lengthServerIp);   //frombzero to memset
-
-    int port = atoi(argv[1]);
-
-    serverIp.sin_family = AF_INET;
-    serverIp.sin_addr.s_addr = INADDR_ANY;
-    serverIp.sin_port = htons(port);
-
-    if(bind(sock, (struct sockaddr *) &serverIp, sizeof(serverIp)) < 0)
-        printf("Error attempting to bind!!\n");
-
-    char buffer [1024];
-     recvfrom(sock, buffer, 1024, 0, (struct sockaddr*) &clientIp, &lengthServerIp);
- int status ;
-
+    recvfrom(sock, buffer, 1024, 0, (struct sockaddr*)&from, &fromLength);
     printf("%s", buffer);
+
+
 }
 
