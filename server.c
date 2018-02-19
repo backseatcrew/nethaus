@@ -29,10 +29,18 @@ void main(int argc, char * argv[]) {
     //recieving handshake
     char buffer[1024];
     socklen_t fromLength = sizeof(from);
-
     recvfrom(sock, buffer, 1024, 0, (struct sockaddr*)&from, &fromLength);
-    printf("%s", buffer);
-
-
+    //printf("%s", buffer);
+    FILE * file;
+    if((file = fopen(buffer, "r"))) {
+         printf("%s", "File exists!\n");
+         memset(&buffer, 0, sizeof buffer);
+         strcpy(buffer, "File exists! Preparing transmission..\n");
+         sendto(sock, buffer, 1024,0,(struct sockaddr*)&from, fromLength);
+    }
+    else {
+         printf("%s", "File does not exists. Exiting..");
+         exit(0);
+    }
 }
 

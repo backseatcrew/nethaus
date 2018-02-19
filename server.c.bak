@@ -21,19 +21,26 @@ void main(int argc, char * argv[]) {
     struct sockaddr_in server, from;
     memset(&server, 0, sizeof(server));
     server.sin_family = AF_INET;
-    server.sin_addr.s_addr = inet_addr("127.0.0.1");
     server.sin_port = htons(atoi(argv[1]));
+    server.sin_addr.s_addr = INADDR_ANY;
     //binding
-    if(bind(sock,(struct sockaddr *) &server, sizeof(server)) < 0) printf("Error binding!!\n");
+    if(bind(sock,(struct sockaddr*) &server, sizeof(server)) < 0) printf("Error binding!!\n");
 
     //recieving handshake
-    int bufferSize = 1024;
-    char buffer[bufferSize];
+    char buffer[1024];
     socklen_t fromLength = sizeof(from);
-    while(1){
-    recvfrom(sock, buffer, bufferSize, 0, (struct sockaddr*)&server, &fromLength);
-    printf("%s", buffer);
+    recvfrom(sock, buffer, 1024, 0, (struct sockaddr*)&from, &fromLength);
+    //printf("%s", buffer);
+    FILE * file;
+    if((file = fopen(buffer, "r"))) {
+         printf("%s", "File exists!\n");
+         memset(&buffer, 0, sizeof buffer);
+         strcpy()
+         sendto(sock, buffer, 1024,0,(struct sockaddr*)&from, fromLength);
     }
-
+    else {
+         printf("%s", "File does not exists. Exiting..");
+         exit(0);
+    }
 }
 

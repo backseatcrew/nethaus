@@ -57,7 +57,7 @@ void main(int argc, char *argv[]) {
     uint32_t clientIP = ourIPInfo->sin_addr.s_addr; //found our IP
     //requesting file
     char filename[1024];
-    strcpy(filename, "hello!");
+    strcpy(filename, argv[3]);
     //memcpy(filename, &argv[3], sizeof(argv[3]));
     unsigned int length = sizeof(struct sockaddr_in);
     int fileRequestSent = sendto(sock, filename, 1024,0,(struct sockaddr*)&server, sizeof(server));
@@ -68,10 +68,14 @@ void main(int argc, char *argv[]) {
     }
     int bufferSize = 1024;
     char buffer [bufferSize];
-    //memset(&buffer, 0, sizeof(buffer));
-    strcpy(buffer, "HELLO!");
     //response from server regarding if the file exists
     int fileRequestResponse = recvfrom(sock,buffer,bufferSize,0,(struct sockaddr*)&from, &length);
+    printf("%s", buffer);
+
+    int stillReading = 1;
+    while(stillReading == 1){
+
+    }
 }
 
 
