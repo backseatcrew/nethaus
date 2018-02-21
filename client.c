@@ -83,30 +83,19 @@ int main(int argc, char *argv[]) {
     //response from server regarding if the file exists
     int bufferSize = 1024;
     char buffer [bufferSize];
-    int fileRequestResponse = recvfrom(sock,buffer,bufferSize,0,(struct sockaddr*)&from, &length);
-
-    if(fileRequestResponse < 0) {
-        printf("Failed to recieve file request! Exiting..\n");
-        exit(1);
-    }
-
-    //printf("%s", buffer);
-
-
-    //recieving file
     char * fileName;
     fileName = basename(argv[3]);
     FILE * file;
     file = fopen(fileName,"wb");
-    stillWriting = fwrite(buffer,sizeof(buffer), 1, file);
-    while(1) {
-        memset(&buffer, 0, sizeof buffer);
-        recvfrom(sock, buffer, 1024, 0, (struct sockaddr*)&from, &length);
 
+    while(1) {
+        recvfrom(sock, buffer, 1024, 0, (struct sockaddr*)&from, &length);
+       // printf("%s", buffer);
         if(strcmp(buffer, "Finished") == 0)
             break;
 
-        fwrite(buffer,sizeof(buffer), 1, file);
+        fwrite(buffer,strlen(buffer), 1, file);
+        memset(&buffer, 0, sizeof buffer);
     }
 
     fflush(file);
