@@ -50,6 +50,7 @@ int main(int argc, char *argv[]) {
 
 
     //finding our own ip
+    /*
     struct ifaddrs *networkInterfaces, *temp;
     getifaddrs(&networkInterfaces);
     temp = networkInterfaces;
@@ -65,7 +66,7 @@ int main(int argc, char *argv[]) {
 
 
     uint32_t clientIP = ourIPInfo->sin_addr.s_addr; //found our IP
-
+    */
 
     //requesting file
     char filename[1024];
@@ -83,6 +84,7 @@ int main(int argc, char *argv[]) {
     int bufferSize = 1024;
     char buffer [bufferSize];
     memset(&buffer, 0, sizeof buffer);
+    uint16_t fileSize;
 
     recvfrom(sock, buffer, sizeof buffer, 0, (struct sockaddr*)&from, &length);
 
@@ -91,11 +93,11 @@ int main(int argc, char *argv[]) {
                exit(0);
     }
     else{
-        uint16_t fileSize;
         memcpy(&fileSize, buffer, sizeof(fileSize));
         uint16_t convertedFileSize = ntohs(fileSize);
         printf("%s", "File exists! File size is: ");
-        printf("%d\n", convertedFileSize);
+        printf("%d", convertedFileSize);
+        printf("%s", " bytes.\n");
     }
 
 

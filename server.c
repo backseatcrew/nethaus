@@ -32,7 +32,7 @@ int main(int argc, char * argv[]) {
     socklen_t fromLength = sizeof(from);
     recvfrom(sock, buffer, 1024, 0, (struct sockaddr*)&from, &fromLength);
     FILE * file;
-    if((file = fopen(buffer, "r"))) {
+    if((file = fopen(buffer, "rb"))) {
          printf("%s", "File exists!\n");
          fseek(file, 0, SEEK_END);
          uint16_t fileSize = ftell(file);
@@ -49,7 +49,7 @@ int main(int argc, char * argv[]) {
     }
 
     //file exists. Beginning transmission
-   int stillReading;
+ /*  int stillReading;
     while(1) {
         memset(&buffer, 0, sizeof buffer);
         stillReading = fscanf(file,"%s", buffer);
@@ -67,7 +67,25 @@ int main(int argc, char * argv[]) {
         }
         printf("%s", "Server Sent\n");
         sendto(sock, buffer, sizeof buffer, 0, (struct sockaddr*)&from, fromLength);
+    }*/
+
+    while(!feof(file)) {
+        fread(buffer, 1, 1024, file);
+        sendto(sock, buffer, sizeof buffer, 0, (struct sockaddr*)&from, fromLength);
+        memset(&buffer, 0, sizeof buffer);
+                printf("%s", "Server Sent\n");
     }
+
+            memset(&buffer, 0, sizeof buffer);
+            strcpy(buffer, "Finished");
+            sendto(sock, buffer, sizeof buffer, 0, (struct sockaddr*)&from, fromLength);
+            printf("%s", "Server End\n");
+
+            fflush(file);
+            fclose(file);
+            close(sock);
+            exit(0);
+
     return 0;
 }
 
