@@ -34,32 +34,40 @@ int main(int argc, char * argv[]) {
     FILE * file;
     if((file = fopen(buffer, "r"))) {
          printf("%s", "File exists!\n");
+         fseek(file, 0, SEEK_END);
+         uint16_t fileSize = ftell(file);
+         fseek(file, 0, SEEK_SET);
+         uint16_t convertedFileSize = htons(fileSize);
+         sendto(sock, &convertedFileSize, sizeof convertedFileSize, 0, (struct sockaddr*)&from, fromLength);
     }
     else {
-         printf("%s", "File does not exists. Exiting..");
-         exit(0);
+        printf("%s", "File does not exists. Exiting..");
+        memset(&buffer, 0, sizeof buffer);
+        strcpy(buffer, "Finished");
+        sendto(sock, buffer, sizeof buffer, 0, (struct sockaddr*)&from, fromLength);
+        exit(0);
     }
 
+    //file exists. Beginning transmission
    int stillReading;
-    while(stillReading != EOF) {
+    while(1) {
         memset(&buffer, 0, sizeof buffer);
-        stillReading = fread(buffer,sizeof(buffer),1,file);
-       // printf("%s", buffer);
+        stillReading = fscanf(file,"%s", buffer);
 
-        //stillReading = getc(file);
-        if(feof(file)){
-            sendto(sock, buffer, sizeof buffer, 0, (struct sockaddr*)&from, fromLength);
+        if(stillReading <= 0){
             memset(&buffer, 0, sizeof buffer);
             strcpy(buffer, "Finished");
             sendto(sock, buffer, sizeof buffer, 0, (struct sockaddr*)&from, fromLength);
-            break;
-        }
+            printf("%s", "Server End\n");
 
+            fflush(file);
+            fclose(file);
+            close(sock);
+            exit(0);
+        }
+        printf("%s", "Server Sent\n");
         sendto(sock, buffer, sizeof buffer, 0, (struct sockaddr*)&from, fromLength);
     }
-    fflush(file);
-    fclose(file);
-    close(sock);
     return 0;
 }
 

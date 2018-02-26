@@ -79,28 +79,48 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-
     //response from server regarding if the file exists
     int bufferSize = 1024;
     char buffer [bufferSize];
+    memset(&buffer, 0, sizeof buffer);
+
+    recvfrom(sock, buffer, sizeof buffer, 0, (struct sockaddr*)&from, &length);
+
+    if(strcmp(buffer, "Finished") == 0) {
+               printf("%s", "File does not exists. Exiting..");
+               exit(0);
+    }
+    else{
+        uint16_t fileSize;
+        memcpy(&fileSize, buffer, sizeof(fileSize));
+        uint16_t convertedFileSize = ntohs(fileSize);
+        printf("%s", "File exists! File size is: ");
+        printf("%d\n", convertedFileSize);
+    }
+
+
+    //beginning transmission
     char * fileName;
     fileName = basename(argv[3]);
     FILE * file;
     file = fopen(fileName,"wb");
 
     while(1) {
-        recvfrom(sock, buffer, 1024, 0, (struct sockaddr*)&from, &length);
-       // printf("%s", buffer);
-        if(strcmp(buffer, "Finished") == 0)
-            break;
-
-        fwrite(buffer,strlen(buffer), 1, file);
         memset(&buffer, 0, sizeof buffer);
-    }
+        recvfrom(sock, buffer, 1024, 0, (struct sockaddr*)&from, &length);
 
-    fflush(file);
-    fclose(file);
-    close(sock);
+        if(strcmp(buffer, "Finished") == 0){
+            fflush(file);
+            fclose(file);
+            close(sock);
+            printf("%s", "Client End\n");
+            exit(0);
+        }
+
+        fwrite(buffer,sizeof buffer, 1, file);
+        fflush(stdout);
+        printf("%s", "Client Recieved\n");
+    }
     return 0;
 }
 
