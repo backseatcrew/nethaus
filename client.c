@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <ifaddrs.h>
 #include <libgen.h>
-//#include "sendrecieve.h"
+#include "sendrecieve.h"
 //#include <time.h>
 //#include <sys/types.h>
 //#include <sys/socket.h>
@@ -49,25 +49,6 @@ int main(int argc, char *argv[]) {
     server.sin_port = htons(atoi(argv[2]));
 
 
-    //finding our own ip
-    /*
-    struct ifaddrs *networkInterfaces, *temp;
-    getifaddrs(&networkInterfaces);
-    temp = networkInterfaces;
-    struct sockaddr_in *ourIPInfo;
-
-
-    while(temp) {
-        if(temp->ifa_addr && temp->ifa_addr->sa_family == AF_INET){
-            ourIPInfo = (struct sockaddr_in *) temp->ifa_addr;
-        }
-        temp = temp->ifa_next;
-    }
-
-
-    uint32_t clientIP = ourIPInfo->sin_addr.s_addr; //found our IP
-    */
-
     //requesting file
     char filename[1024];
     strcpy(filename, argv[3]);
@@ -106,6 +87,8 @@ int main(int argc, char *argv[]) {
     fileName = basename(argv[3]);
     FILE * file;
     file = fopen(fileName,"wb");
+
+    int fixedSized = sizeof(uint16_t) *3 + DATA_SIZE;
 
     while(1) {
         memset(&buffer, 0, sizeof buffer);

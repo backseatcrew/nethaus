@@ -1,70 +1,69 @@
-struct payload {
-    char * anyFileType;
-    uint32_t ip;
-    int port;
+#define DATA_SIZE 1024
 
-}*p;
+struct Data {
 
-struct ack {
+    char data[DATA_SIZE];
+
+} data;
+
+struct Ack {
     int sequence;
     int length;
+    int ack;
+    struct Data data;
 }ack;
 
-//establish handshake, send request with file (fullpath of server file location in request as string or array of chars), have a fixed length (1024 or something), if file path doesn't exist terminate (ack to close connection), read file in chunks of 1 kb, packatize it and send it, open file and seralize
-//payload should include packet size as well as src destination
-struct payload2 {
-    unsigned char length;
-    unsigned char type;
-    unsigned char *data;
-};
-//ack sequence number, length of packet, (ack request) 32 bit number never cycle back
-//two structures one for the ack for different packet types ( data and ack)
-//2 meg jpg for test and open file and looks same we're good
-//chars and bites dont need hton or ntoh, only any type of int types!!
-//noth to deserialize
-struct header {
-    uint32_t src;
-    uint32_t dest;
-    int port;
-    struct payload2 data[8];
-} header;
-//////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
-char serialize() {
-    char b[sizeof(p->anyFileType) + sizeof(p->ip) + sizeof(p->port)];
+
+char serialize(struct Ack sent) {
+    uint16_t seq = htons(sent.sequence);
+    uint16_t leng = htons(sent.length);
+    uint16_t ack = htons(sent.ack);
+
+    char b[sizeof(seq) + sizeof(leng) + sizeof(ack) + sizeof(sent.data.data)];
     int off = 0;
-    memcpy(b, &p->anyFileType, sizeof(p->anyFileType));
-    off = sizeof(p->anyFileType);
-    memcpy(b+off, &p->ip, sizeof(p->ip));
-    off += sizeof(p->port);
-    memcpy(b+off, &p->port, sizeof(p->port));
+    memcpy(b, &seq, sizeof(seq));
+    off = sizeof(seq);
+    memcpy(b+off, &leng, sizeof(leng));
+    off += sizeof(leng);
+    memcpy(b+off, &ack, sizeof(ack));
+    off += sizeof(sent.data.data);
+    memcpy(b+off, &sent.data.data, sizeof(sent.data.data));
     return *b;
 }
 
-char serialize2() {
-    char b[sizeof(uint32_t)*2 + sizeof(int) + sizeof (struct payload2)*8 ];
-    int off = 0;
+struct Ack deserialize (char* serializedData) {
+    struct Ack recieved;
 
-}
-////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-struct payload deserialize (char serializedData) {
-    struct payload data;
-    memcpy(&data.anyFileType, &serializedData, sizeof(data.anyFileType));
-    memcpy(&data.port, &serializedData + sizeof(&data.ip), sizeof(data.ip));
-    memcpy(&data.ip, &serializedData +sizeof(&data.ip)+ sizeof(&data.port), sizeof(data.port));
-    return data;
+    uint16_t seq;
+    uint16_t leng;
+    uint16_t ack;
+
+    memcpy(&seq, &serializedData, sizeof(seq));
+    memcpy(&leng, &serializedData + sizeof(seq), sizeof(leng));
+    memcpy(&ack, &serializedData +sizeof(seq)+ sizeof(leng)+sizeof(leng), sizeof(ack));
+    int offset = sizeof(serializedData) - sizeof(seq)+ sizeof(leng)+sizeof(leng)+ sizeof(ack);
+    memcpy(&recieved.data.data, &serializedData +sizeof(seq)+ sizeof(leng)+sizeof(ack), offset);
+
+    recieved.sequence = ntohs(seq);
+    recieved.length = ntohs(leng);
+    recieved.ack = ntohs(ack);
+    return recieved;
 }
 /*
-struct payload deserialize2 (char serializedData) {
-    struct payload data;
-    memcpy(&data.anyFileType, serializedData, sizeof data.anyFileType);
-    memcpy(&data.ip, serializedData + data.anyFileType, sizeof data.ip);
-    memcpy(&data.port, serializedData + sizeof data.anyFileType + sizeof data.ip, sizeof data.port);
-    return data;
-}
+establish handshake, send request with file (fullpath of server file location in request as string or array of chars), have a fixed length (1024 or something), if file path doesn't exist terminate (ack to close connection), read file in chunks of 1 kb, packatize it and send it, open file and seralize
+payload should include packet size as well as src destination
 */
-/*algorithm notes:
+
+/*
+ack sequence number, length of packet, (ack request) 32 bit number never cycle back
+two structures one for the ack for different packet types ( data and ack)
+2 meg jpg for test and open file and looks same we're good
+chars and bites dont need hton or ntoh, only any type of int types!!
+noth to deserialize
+*/
+
+/*
+algorithm notes:
 timer = round robin on client via loop checking..check in some duration
 server send ack = 0 for fail and 1 for success
 

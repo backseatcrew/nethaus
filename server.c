@@ -3,6 +3,8 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include "sendrecieve.h"
+#include <inttypes.h>
 //#include <netdb.h>
 //#include <sys/types.h>
 //#include <sys/socket.h>
@@ -49,31 +51,37 @@ int main(int argc, char * argv[]) {
     }
 
     //file exists. Beginning transmission
- /*  int stillReading;
-    while(1) {
-        memset(&buffer, 0, sizeof buffer);
-        stillReading = fscanf(file,"%s", buffer);
+    struct Ack sent;
+    struct Ack recieved;
+    int recieved_correct;
+    int sequence_val = 0;
 
-        if(stillReading <= 0){
-            memset(&buffer, 0, sizeof buffer);
-            strcpy(buffer, "Finished");
-            sendto(sock, buffer, sizeof buffer, 0, (struct sockaddr*)&from, fromLength);
-            printf("%s", "Server End\n");
 
-            fflush(file);
-            fclose(file);
-            close(sock);
-            exit(0);
-        }
-        printf("%s", "Server Sent\n");
-        sendto(sock, buffer, sizeof buffer, 0, (struct sockaddr*)&from, fromLength);
-    }*/
-
+    int fixedSized = sizeof(uint16_t) *3 + DATA_SIZE;
     while(!feof(file)) {
+
+
+
         fread(buffer, 1, 1024, file);
-        sendto(sock, buffer, sizeof buffer, 0, (struct sockaddr*)&from, fromLength);
+        strcpy(sent.data.data, buffer);
+        sent.sequence = sequence_val;
+        sent.ack = 0;
+        sent.length = sizeof(struct Ack);
+        char sentSerialized = serialize(sent);
+
+        char recvSerialized[fixedSized];
+
+        sendto(sock, &sentSerialized, sizeof sentSerialized, 0, (struct sockaddr*)&from, fromLength);
         memset(&buffer, 0, sizeof buffer);
-                printf("%s", "Server Sent\n");
+        printf("%s", "Server Sent\n");
+
+        recieved_correct = recvfrom(sock, &recvSerialized, sizeof(recvSerialized), 0, (struct sockaddr*)&from, &fromLength);
+        recieved = deserialize(recvSerialized);
+        printf("%d", recieved.ack);
+        if (recieved_correct > 0 ){
+
+        }
+        ++sequence_val;
     }
 
             memset(&buffer, 0, sizeof buffer);
