@@ -88,24 +88,36 @@ int main(int argc, char *argv[]) {
     FILE * file;
     file = fopen(fileName,"wb");
 
+
+    struct Ack sent;
+    struct Ack recieved;
+    int recieved_correct;
+    int sequence_val = 0;
     int fixedSized = sizeof(uint16_t) *3 + DATA_SIZE;
 
     while(1) {
-        memset(&buffer, 0, sizeof buffer);
-        recvfrom(sock, buffer, 1024, 0, (struct sockaddr*)&from, &length);
+        char recvSerialized[fixedSized];
+        memset(&recvSerialized, 0, sizeof recvSerialized);
 
-        if(strcmp(buffer, "Finished") == 0){
+        recieved_correct=recvfrom(sock, &recvSerialized, sizeof(recvSerialized), 0, (struct sockaddr*)&from, &length);
+        recieved = deserialize(recvSerialized);
+    //left off here!!!!!!!!! need to make sure we recieve and loop approprietly, and if not, what do we do?
+        if(recieved_correct >0 && recieved.sequence == sequence_val){
+            strcpy(buffer, recieved.data.data);
+            fwrite(buffer,sizeof buffer, 1, file);
+            fflush(stdout);
+            printf("%s", "Client Recieved\n");
+            ++sequence_val;
+        }
+
+    }
+            /*if(strcmp(recvSerialized, "Finished") == 0){
             fflush(file);
             fclose(file);
             close(sock);
             printf("%s", "Client End\n");
             exit(0);
-        }
-
-        fwrite(buffer,sizeof buffer, 1, file);
-        fflush(stdout);
-        printf("%s", "Client Recieved\n");
-    }
+        }*/
     return 0;
 }
 

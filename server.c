@@ -55,31 +55,35 @@ int main(int argc, char * argv[]) {
     struct Ack recieved;
     int recieved_correct;
     int sequence_val = 0;
-
-
     int fixedSized = sizeof(uint16_t) *3 + DATA_SIZE;
+
+
     while(!feof(file)) {
-
-
 
         fread(buffer, 1, 1024, file);
         strcpy(sent.data.data, buffer);
         sent.sequence = sequence_val;
         sent.ack = 0;
         sent.length = sizeof(struct Ack);
-        char sentSerialized = serialize(sent);
 
+        char sentSerialized = serialize(sent);
         char recvSerialized[fixedSized];
 
-        sendto(sock, &sentSerialized, sizeof sentSerialized, 0, (struct sockaddr*)&from, fromLength);
+
         memset(&buffer, 0, sizeof buffer);
-        printf("%s", "Server Sent\n");
 
-        recieved_correct = recvfrom(sock, &recvSerialized, sizeof(recvSerialized), 0, (struct sockaddr*)&from, &fromLength);
-        recieved = deserialize(recvSerialized);
-        printf("%d", recieved.ack);
-        if (recieved_correct > 0 ){
+        while(1){
+                sendto(sock, &sentSerialized, sizeof sentSerialized, 0, (struct sockaddr*)&from, fromLength);
+                printf("%s", "Server Sent\n");
 
+                recieved_correct = recvfrom(sock, &recvSerialized, sizeof(recvSerialized), 0, (struct sockaddr*)&from, &fromLength);
+                recieved = deserialize(recvSerialized);
+
+//        printf("%d", recieved.ack);
+
+                if (recieved_correct > 0 && recieved.sequence == sequence_val){
+                    break;
+                }
         }
         ++sequence_val;
     }
