@@ -68,6 +68,7 @@ int main(int argc, char * argv[]) {
 
         //READ FILE AND PREPARE PACKET
         fread(buffer, 1, 1024, file);
+        memset(&recieved.data.data, 0, sizeof recieved.data.data);
         strcpy(sent.data.data, buffer);
         memset(&buffer, 0, sizeof buffer);
         sent.sequence = sequence_val;

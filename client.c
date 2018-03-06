@@ -134,6 +134,13 @@ int main(int argc, char *argv[]) {
 
 
     //ACK AND CONTINUE
+               if(strcmp(recvSerialized, "Finished") == 0){
+                fflush(file);
+                fclose(file);
+                close(sock);
+                printf("%s", "Client End\n");
+                exit(0);
+            }
                 if(recieved_correct >0 && recieved.sequence == sequence_val){
 
     //WRITE TO FILE
@@ -142,6 +149,7 @@ int main(int argc, char *argv[]) {
                     fflush(stdout);
                     printf("%s", "Client Recieved\n");
                     memset(&buffer, 0, sizeof buffer);
+                    memset(&recieved.data.data, 0, sizeof recieved.data.data);
 
     //PREPARE PACKET
                     sent.sequence = sequence_val;
@@ -174,14 +182,6 @@ int main(int argc, char *argv[]) {
         }
 
     }
-    //left off here!
-            f(strcmp(recvSerialized, "Finished") == 0){
-            fflush(file);
-            fclose(file);
-            close(sock);
-            printf("%s", "Client End\n");
-            exit(0);
-        }
     return 0;
 }
 
