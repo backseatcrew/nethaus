@@ -7,9 +7,9 @@ struct Data {
 } data;
 
 struct Ack {
-    int sequence;
-    int length;
-    int ack;
+    uint16_t sequence;
+    uint16_t length;
+    uint16_t ack;
     struct Data data;
 }ack;
 
@@ -19,14 +19,14 @@ char serialize(struct Ack sent) {
     uint16_t leng = htons(sent.length);
     uint16_t ack = htons(sent.ack);
 
-    char b[sizeof(seq) + sizeof(leng) + sizeof(ack) + sizeof(sent.data.data)];
+    char b [sizeof(sent.sequence) + sizeof(sent.length) + sizeof(sent.ack) + sizeof(sent.data.data)];
     int off = 0;
     memcpy(b, &seq, sizeof(seq));
     off = sizeof(seq);
     memcpy(b+off, &leng, sizeof(leng));
     off += sizeof(leng);
     memcpy(b+off, &ack, sizeof(ack));
-    off += sizeof(sent.data.data);
+    off += sizeof(ack);
     memcpy(b+off, &sent.data.data, sizeof(sent.data.data));
     return *b;
 }
@@ -34,19 +34,25 @@ char serialize(struct Ack sent) {
 struct Ack deserialize (char* serializedData) {
     struct Ack recieved;
 
-    uint16_t seq;
-    uint16_t leng;
-    uint16_t ack;
+    uint16_t seq2;
+    uint16_t leng2;
+    uint16_t ack2;
 
-    memcpy(&seq, &serializedData, sizeof(seq));
-    memcpy(&leng, &serializedData + sizeof(seq), sizeof(leng));
-    memcpy(&ack, &serializedData +sizeof(seq)+ sizeof(leng)+sizeof(leng), sizeof(ack));
-    int offset = sizeof(serializedData) - sizeof(seq)+ sizeof(leng)+sizeof(leng)+ sizeof(ack);
-    memcpy(&recieved.data.data, &serializedData +sizeof(seq)+ sizeof(leng)+sizeof(ack), offset);
+    int off2 = 0;
+    memcpy(&seq2, serializedData, sizeof(seq2));
+    off2 += sizeof(seq2);
+    memcpy(&leng2, serializedData + off2, sizeof(leng2));
+    off2 += sizeof(leng2);
+    memcpy(&ack2, serializedData + off2, sizeof(ack2));
+    //int offset = sizeof(serializedData) - sizeof(seq2)+ sizeof(leng2)+ sizeof(ack2);
+    off2 += sizeof(ack2);
+    memcpy(&recieved.data.data, serializedData +off2, sizeof(recieved.data.data));
 
-    recieved.sequence = ntohs(seq);
-    recieved.length = ntohs(leng);
-    recieved.ack = ntohs(ack);
+
+    recieved.sequence = ntohs(seq2);
+    recieved.length = ntohs(leng2);
+    recieved.ack = ntohs(ack2);
+
     return recieved;
 }
 /*
