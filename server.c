@@ -53,6 +53,15 @@ int main(int argc, char * argv[]) {
         exit(0);
     }
 
+    //send window size
+    memset(&buffer, 0, sizeof buffer);
+    strcpy(buffer, argv[3]);
+    sendto(sock, buffer, sizeof buffer, 0, (struct sockaddr*)&from, fromLength);
+    //send timeout size
+    memset(&buffer, 0, sizeof buffer);
+    strcpy(buffer, argv[2]);
+    sendto(sock, buffer, sizeof buffer, 0, (struct sockaddr*)&from, fromLength);
+
     //file exists. Beginning transmission
     struct Ack sent;
     struct Ack recieved;
@@ -73,14 +82,18 @@ int main(int argc, char * argv[]) {
     if(sock2 < 0) printf("Could not open socket!!\n");
     int retransmit_timeout = atoi(argv[2]);
     int window_size = atoi(argv[3]);
-    char stopngoBuf[window_size];
+
 
     struct sockaddr_in from2;
     memset(&from2, 0, sizeof(from2));
     server.sin_family = AF_INET;
     server.sin_port = htons(atoi(argv[1]+1));
     server.sin_addr.s_addr = INADDR_ANY;
+   // time_t time;
+    //time(time);
+    //SIG stop;
     //timer_create();
+    //timer_create(CLOCK_REALTIME,stop,&time);
    // pthread_create();
     //pthread_mutex_init();
     //// //// //// ////
@@ -176,7 +189,8 @@ int main(int argc, char * argv[]) {
                         recv_fail = 1;
                     }
             }
-            ++acks_sent;
+            if(acks_sent < window_size)
+                ++acks_sent;
             ++sequence_val;
 
         }
