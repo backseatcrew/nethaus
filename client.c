@@ -8,11 +8,12 @@
 #include <libgen.h>
 #include "sendrecieve.h"
 #include <sys/time.h>
+#include <pthread.h>
 //#include <time.h>
 //#include <sys/types.h>
 //#include <sys/socket.h>
 //#include <net/if.h>
-//#include <pthread.h>
+
 
 int main(int argc, char *argv[]) {
 
@@ -105,6 +106,11 @@ int main(int argc, char *argv[]) {
     setsockopt(sock,SOL_SOCKET,SO_RCVTIMEO,(char *)&timer, sizeof(timer));
 
 
+    //////  /////   //////  /////// ///////
+
+
+
+    //////  /////   //////  /////// ///////
 
 
     while(1) {
